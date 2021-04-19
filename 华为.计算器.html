@@ -1,0 +1,191 @@
+<!-- /**
+ * 实现一个简版计算器
+ * 仅实现二元无符号`浮点`计算即可
+ * 优先实现加法运算，其他运算请占位，时间条件允许下可以继续实现
+ * 输入9007199254740992+3 输出9007199254740995
+ *
+ * 问题1：补充代码实现，键盘按钮事件绑定
+ * 问题2：补充代码实现：calculate函数，补全计算过程
+ */ -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .screen {
+      box-sizing: border-box;
+      height: 50px;
+      width: 200px;
+      background-color: aliceblue;
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+      padding: 0 10px;
+    }
+
+    .current {
+      flex: 1;
+    }
+
+    .result {
+      flex: 1;
+    }
+
+    .row {
+      display: flex;
+      width: 200px;
+    }
+
+    .col {
+      flex: 1;
+      text-align: center;
+      box-sizing: border-box;
+      box-shadow: 0 0 0 .5px #666;
+      border-radius: 2px;
+      margin: 2px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="screen">
+    <div id="calcCurrent" class="current"></div>
+    <div id="calcResult" class="result">=</div>
+  </div>
+  <div class="calc-fraction" id="calcFraction">
+    <div class="row">
+      <span class="col">AC</span>
+      <span class="col">删</span>
+      <span class="col">%</span>
+      <span class="col operator">➗</span>
+    </div>
+    <div class="row">
+      <span class="col">1</span>
+      <span class="col">2</span>
+      <span class="col">3</span>
+      <span class="col operator">+</span>
+    </div>
+    <div class="row">
+      <span class="col">4</span>
+      <span class="col">5</span>
+      <span class="col">6</span>
+      <span class="col operator">-</span>
+    </div>
+    <div class="row">
+      <span class="col">7</span>
+      <span class="col">8</span>
+      <span class="col">9</span>
+      <span class="col operator">x</span>
+    </div>
+    <div class="row">
+      <span class="col">&nbsp;&nbsp;</span>
+      <span class="col">0</span>
+      <span class="col">.</span>
+      <span class="col operator" id="calculate">=</span>
+    </div>
+  </div>
+  <script>
+    let number = '', numberArr = [], operator = '', result = 0, isCalculate = false
+    document.addEventListener('click', function (ev) {
+      var ev = ev || window.event
+      var target = ev.target
+      if (target.className.indexOf('col') === -1) return
+      if (target.id === 'calculate') {
+        if (!isCalculate) return
+        numberArr.push(number)
+        result = calculate(...numberArr, operator)
+        calcResult.innerText = '=' + result
+        number = ''
+        numberArr = []
+        if (isCalculate) {
+          isCalculate = false
+        }
+        return
+      } else if (target.className === 'col') {
+        if (!isCalculate) {
+          isCalculate = true
+          calcCurrent.innerText = ''
+        }
+        number += target.innerHTML
+      } else if (target.className === 'col operator') {
+        numberArr.push(number)
+        operator = target.innerHTML
+        number = ''
+      }
+      calcCurrent.innerText += target.innerHTML
+    })
+    function add(aArr, bArr, isDecimal = false) {
+      let result = '', resultArr = [], i = aArr.length - 1, j = bArr.length - 1
+      while (i >= 0 && j >= 0) {
+        resultArr.unshift((aArr[i] - '') + (bArr[j] - ''))
+        i--
+        j--
+      }
+      if (i >= 0) {
+        resultArr = aArr.splice(0, i + 1).concat(resultArr)
+      }
+      if (j >= 0) {
+        resultArr = bArr.splice(0, j + 1).concat(resultArr)
+      }
+      let index = resultArr.length - 1, upper = 0
+      while (index >= 0) {
+        resultArr[index] = resultArr[index] - '' + upper
+        if (resultArr[index] > 10) {
+          upper = parseInt(resultArr[index] / 10)
+          resultArr[index] = resultArr[index] % 10
+        } else {
+          upper = 0
+        }
+        index--
+      }
+      if (upper) { resultArr.unshift(upper) }
+      if (isDecimal) resultArr.reverse()
+      result = resultArr.join('')
+      return result
+    }
+    function handleData(str) {
+      let result = []
+      if (str.indexOf('.') !== -1) {
+        result = str.split('.')
+      } else {
+        result = [str]
+      }
+      return result.map((item, index) => {
+        if (index == 1) {
+          return item.split('').reverse()
+        } else {
+          return item.split('')
+        }
+      })
+    }
+    function calculate(numberA, numberB, operator) {
+      let aArr = handleData(numberA)
+      let bArr = handleData(numberB)
+      if (operator == '+') {
+        if (aArr.length == 2 && bArr.length == 2) {
+          return add(aArr[0], bArr[0]) + '.' + add(aArr[1], bArr[1], true)
+        } else if (aArr.length == 2) {
+          return add(aArr[0], bArr[0]) + '.' + aArr[1].reverse().join('')
+        } else if (bArr.length == 2) {
+          return add(aArr[0], bArr[0]) + '.' + bArr[1].reverse().join('')
+        } else {
+          return add(aArr[0], bArr[0])
+        }
+
+      } else if (operator == '-') {
+
+      } else if (operator == 'x') {
+
+      } else if (operator == '/') {
+
+      }
+    }
+  </script>
+</body>
+
+</html>

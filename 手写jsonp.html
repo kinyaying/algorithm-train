@@ -1,0 +1,81 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+
+  <script>
+    /**
+     * 手写jsonp并返回Promise对象
+     * 参数url，data:json对象，callback函数
+     */
+
+    function jsonp1(url, data = {}, callback = 'callback') {
+      data.callback = callback
+      let params = []
+      for (let key in data) {
+        params.push(`${key}=${data[key]}`)
+      }
+      url += '?' + params.join('&')
+      let script = document.createElement('script')
+      script.src = url
+      document.body.appendChild(script)
+      return new Promise((resolve, reject) => {
+        window[callback] = function (data) {
+          try {
+            resolve(data)
+          } catch (e) {
+            reject(e)
+          } finally {
+            cript.parentNode.removeChild(script)
+          }
+        }
+      })
+    }
+    jsonp('http://photo.sina.cn/aj/index', {
+      page: 1,
+      cate: 'recommend'
+    }, 'jsoncallback').then(data => {
+      console.log('data::::', data)
+    })
+    function jsonp(url, data = {}, callback = 'callback') {
+      // 处理json对象，拼接url
+      data.callback = callback
+      let params = []
+      for (let key in data) {
+        params.push(key + '=' + data[key])
+      }
+      console.log(params.join('&'))
+      // 创建script元素
+      let script = document.createElement('script')
+      script.src = url + '?' + params.join('&')
+      document.body.appendChild(script)
+      // 返回promise
+      return new Promise((resolve, reject) => {
+        window[callback] = (data) => {
+          try {
+            resolve(data)
+          } catch (e) {
+            reject(e)
+          } finally {
+            // 移除script元素
+            script.parentNode.removeChild(script)
+            console.log(script)
+          }
+        }
+      })
+
+    }
+    // jsonp('http://photo.sina.cn/aj/index', {
+    //   page: 1,
+    //   cate: 'recommend'
+    // }, 'jsoncallback').then(data => {
+    //   console.log(data)
+    // })
+  </script>
+</body>
+
+</html>
